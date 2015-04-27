@@ -1,0 +1,80 @@
+---
+title: "Is automatic or manual transmission better for mileage?"
+output: pdf_document
+---
+
+Motor Trend, a US car magazine, is interested in exploring the relationship between the type of transmission (automatic or manual) and fuel consumption/mileage using data they have collected on different US car models in 1973-74. Our exploratory data analysis reveals that, without accounting for other characteristics of automobile design and performance, cars with automatic transmission have significantly worst mileage (-7.24 mpg, 95% confidence interval:
+ -11.28 -3.21 mpg) than cars with manual transmission. 
+ 
+However, our analysis shows that this effect is mainly due to the fact that automatic cars in the seventies were equipped with bigger engines (and thus were also heavier) than manual cars. When accounting for this, the difference in mileage between automatic and manual transmission is in fact statistically insignificant.
+
+This is likely to reflect the technological limitations of automatic transmission design at that time, since these old automatic cars had fewer forward gears and smaller rear axle ratios than manual cars (or even modern automatic cars) and thus required more torque to achieve similar performance/acceleration.
+
+## Exploratory data analysis and regression modeling
+
+```{r}
+data(mtcars)
+head(mtcars, 3)
+```
+
+The dataset (mtcars) includes fuel consumption in miles per gallon (mpg) and 10 characteristics of automobile design and performance for 32 different US car models in 1973-74. These characteristics are: number of cylinders (cyl), displacement (disp, in cubic inches), horsepower (hp), rear axle ratio (drat), weight (wt, in thousands of pounds), acceleration (qsec, 1/4 mile time in seconds), configuration of cylinders (vs, 0 = v-shaped, 1 = straight/in-line), type of transmission (am, 0 = automatic, 1 = manual), number of forward gears (gear), number of carburetors (carb).
+
+As already mentioned in the executive summary above, cars with automatic transmission have significantly worst mileage than cars with manual transmission (see sample estimates and 95% confidence interval below).
+
+```{r echo=FALSE}
+mtcars$am = factor(mtcars$am, levels=c(0, 1), labels=c("auto", "manual"), ordered=FALSE)
+mtcars$vs = factor(mtcars$vs, levels=c(0, 1), labels=c("vshaped", "inline"), ordered=FALSE)
+```
+
+```{r}
+t.test(mpg ~ am, data = mtcars)
+```
+
+```{r}
+fit = lm(mpg ~ am, data = mtcars)
+summary(fit)
+```
+
+However, when accounting for the fact that automatic cars in the seventies required bigger engines to achieve similar performance/acceleration (see Appendix), the difference in mileage between automatic and manual transmission is no longer statistically significant.
+
+```{r}
+fit2 = lm(mpg ~ am + disp, data = mtcars)
+summary(fit2)
+```
+
+## Appendix
+
+As already mentioned in the executive summary, automatic cars in the seventies were equipped with bigger engines (and thus were also heavier) than manual cars.
+
+```{r}
+par(mfrow=c(1,2))
+
+boxplot(disp ~ am, data = mtcars, ylab="displacement")
+boxplot(wt ~ am, data = mtcars, ylab="weight")
+
+t.test(disp ~ am, data = mtcars)
+t.test(wt ~ am, data = mtcars)
+```
+
+Given that automatic and manual cars had similar horsepower and performance/accelaration, it appears that they were equipped with bigger engines in order to produce more torque (of two engines with equal horsepower, the larger one will produce more torque). This makes sense because, due to the technological limitations of automatic transmission design in the seventies, these old automatic cars had fewer forward gears and smaller rear axle ratios than manual cars (or even modern automatic cars) and thus required more torque to achieve similar performance/acceleration.
+
+```{r}
+par(mfrow=c(1,4))
+
+boxplot(hp ~ am, data = mtcars, ylab="hp")
+boxplot(gear ~ am, data = mtcars, ylab="# of forward gears")
+boxplot(drat ~ am, data = mtcars, ylab="rear axle ratio")
+boxplot(qsec ~ am, data = mtcars, ylab="acceleration")
+
+t.test(hp ~ am, data = mtcars)
+t.test(gear ~ am, data = mtcars)
+t.test(drat ~ am, data = mtcars)
+t.test(qsec ~ am, data = mtcars)
+```
+
+## Model diagnostics
+
+```{r}
+par(mfrow=c(2,2))
+plot(fit2)
+```
