@@ -10,7 +10,7 @@ However, our analysis shows that this effect is mainly due to the fact that auto
 
 This is likely to reflect the technological limitations of automatic transmission design at that time, since these old automatic cars had fewer forward gears and smaller rear axle ratios than manual cars (or even modern automatic cars) and thus required more torque to achieve similar performance/acceleration.
 
-## Exploratory data analysis and regression modeling
+# Exploratory data analysis and regression modeling
 
 ```{r}
 data(mtcars)
@@ -42,29 +42,42 @@ fit2 = lm(mpg ~ am + disp, data = mtcars)
 summary(fit2)
 ```
 
-## Appendix
+
+```{r}
+anova(fit, fit2)
+```
+
+```{r}
+full.model = lm(mpg ~ ., data = mtcars)
+model = step(full.model, direction = "backward")
+summary(model)
+```
+
+# Appendix
+
+## Exploratory data analysis
 
 As already mentioned in the executive summary, automatic cars in the seventies were equipped with bigger engines (and thus were also heavier) than manual cars.
 
 ```{r}
 par(mfrow=c(1,2))
 
-boxplot(disp ~ am, data = mtcars, ylab="displacement")
-boxplot(wt ~ am, data = mtcars, ylab="weight")
+plot(disp ~ am, data = mtcars)
+plot(wt ~ am, data = mtcars)
 
 t.test(disp ~ am, data = mtcars)
 t.test(wt ~ am, data = mtcars)
 ```
 
-Given that automatic and manual cars had similar horsepower and performance/accelaration, it appears that they were equipped with bigger engines in order to produce more torque (of two engines with equal horsepower, the larger one will produce more torque). This makes sense because, due to the technological limitations of automatic transmission design in the seventies, these old automatic cars had fewer forward gears and smaller rear axle ratios than manual cars (or even modern automatic cars) and thus required more torque to achieve similar performance/acceleration.
+Given that automatic and manual cars had similar horsepower and performance/acceleration, it appears that they were equipped with bigger engines in order to produce more torque (of two engines with equal horsepower, the larger one will produce more torque). This makes sense because, due to the technological limitations of automatic transmission design in the seventies, these old automatic cars had fewer forward gears and smaller rear axle ratios than manual cars (or even modern automatic cars) and thus required more torque to achieve similar performance/acceleration.
 
 ```{r}
 par(mfrow=c(1,4))
 
-boxplot(hp ~ am, data = mtcars, ylab="hp")
-boxplot(gear ~ am, data = mtcars, ylab="# of forward gears")
-boxplot(drat ~ am, data = mtcars, ylab="rear axle ratio")
-boxplot(qsec ~ am, data = mtcars, ylab="acceleration")
+plot(hp ~ am, data = mtcars)
+plot(gear ~ am, data = mtcars)
+plot(drat ~ am, data = mtcars)
+plot(qsec ~ am, data = mtcars)
 
 t.test(hp ~ am, data = mtcars)
 t.test(gear ~ am, data = mtcars)
@@ -76,5 +89,12 @@ t.test(qsec ~ am, data = mtcars)
 
 ```{r}
 par(mfrow=c(2,2))
+
 plot(fit2)
+```
+
+```{r}
+data(mtcars)
+library(corrplot)
+corrplot(cor(mtcars), order = "hclust", addrect = 2)
 ```
